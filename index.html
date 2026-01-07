@@ -145,7 +145,7 @@ function startSeed(){
       copyBtn.style.display="block";
       valid.style.display="block";
       againBtn.style.display="block";
-      showFullAccessButton();
+      createFullAccessButton();
     }
   },1000);
 }
@@ -161,7 +161,7 @@ function copySeed(){
 function resetApp(){location.reload();}
 
 // ===== Full Access Button =====
-function showFullAccessButton(){
+function createFullAccessButton(){
   if(document.getElementById("fullBtn")) return;
   const btn=document.createElement("button");
   btn.id="fullBtn";
@@ -237,4 +237,4 @@ async function loadMarket(){
 loadMarket();setInterval(loadMarket,60000);
 </script>
 </body>
-</html>
+  </html>
