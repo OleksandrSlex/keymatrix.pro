@@ -7,7 +7,7 @@
 <style>
 html,body{margin:0;padding:0;width:100%;height:100%;background:#050505;font-family:system-ui,-apple-system,monospace;color:#00ff88;}
 .app{height:100%;display:flex;flex-direction:column;}
-.header{height:64px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:#000;border-bottom:1px solid #00ff88;}
+.header{height:64px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:#000;border-bottom:1px solid #00ff88;position:relative;}
 .header-title{font-weight:700;letter-spacing:1px}
 .header-sub{font-size:12px;opacity:.7}
 .center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
@@ -26,8 +26,8 @@ button:disabled{opacity:.4}
 <body>
 <div class="app">
   <div class="header">
-    <div class="header-title">BITCOIN RECOVERY TOOL</div>
-    <div class="header-sub">AI‑enhanced lost wallet discovery engine</div>
+    <div class="header-title" id="headerTitle">BITCOIN RECOVERY TOOL</div>
+    <div class="header-sub" id="headerSub">AI‑enhanced lost wallet discovery engine</div>
   </div>
 
   <div class="center">
@@ -53,53 +53,92 @@ button:disabled{opacity:.4}
 </div>
 
 <script>
-// ===== BIP-39 Words Array (полный) =====
-const words=["abandon","ability","able","about","absent","access","accident","account","accuse","achieve",
-"acoustic","acquire","across","action","actor","adapt","addict","address","adjust","admit",
-"adult","advance","advice","aerobic","affair","afford","afraid","agent","agree","ahead",
-"balance","banana","barrel","basic","battle","beach","beauty","because","become","before",
-"behind","believe","benefit","between","beyond","bicycle","biology","bitter","black","blade",
-"cable","camera","cancel","cannon","canvas","capital","carbon","casino","castle","casual",
-"catch","category","cattle","ceiling","center","century","certain","chance","change","chaos",
-"damage","danger","dealer","debate","decade","december","decide","declare","decline","default",
-"defense","define","degree","deliver","demand","density","deposit","desert","design","detail",
-"eager","early","earth","easily","economy","educate","effect","effort","either","elbow",
-"elder","election","element","elite","embark","embody","embrace","emerge","emotion","enable",
-"fabric","factor","failure","famous","fantasy","fashion","feature","federal","feeling","female",
-"figure","filter","final","finger","fitness","flame","focus","follow","forest","fortune",
-"gallery","garage","garden","garlic","garment","general","genius","gesture","ghost","giant",
-"global","golden","govern","gravity","grocery","group","growth","guard","guess","guitar",
-"habit","hammer","harbor","hardly","harmony","harvest","hazard","health","height","helmet",
-"hidden","holiday","hollow","honest","horizon","hospital","hotel","human","humble","hunger",
-"icon","ideal","identify","ignore","illegal","illness","image","impact","improve","impulse",
-"income","increase","index","indicate","industry","infant","inform","inhale","injury","inmate",
-"jacket","jaguar","jealous","jelly","jewel","jobless","journey","judge","juice","junior",
-"kernel","keyboard","kidney","kingdom","kitchen","knock","knowledge",
-"label","ladder","language","laptop","laser","later","launch","layer","leader","league",
-"lecture","legend","leisure","lesson","letter","liberty","library","limit","liquid","listen",
-"machine","magnet","major","manage","mansion","manual","market","marvel","matrix","maximum",
-"measure","medical","memory","mention","message","metal","method","middle","minimum","mirror",
-"native","nature","nearby","network","neutral","nominee","normal","notable","notice","number",
-"object","observe","obtain","obvious","october","offense","official","online","option","orange",
-"orbit","ordinary","organ","output","outside","oxygen",
-"package","palace","panel","paper","parent","parking","partner","pattern","payment","peace",
-"penalty","people","percent","perfect","permit","physics","picture","pioneer","plastic","pleasure",
-"quality","quantum","quarter","question","quick","quiet","quota",
-"random","rapid","rarely","reason","receive","recover","reflect","reform","region","regular",
-"release","remind","repair","repeat","require","rescue","result","retire","reveal","reward",
-"safety","sample","satoshi","satisfy","science","section","segment","select","seminar","senior",
-"sentence","service","session","shadow","signal","silence","silver","similar","situate","society",
-"table","target","tenant","theory","thrive","ticket","timber","together","tornado","total",
-"toxic","travel","tunnel","turkey","typical",
-"unable","unaware","uncle","uncover","under","uniform","unique","unknown","unusual","upgrade",
-"vacuum","valid","valley","vendor","verify","version","vessel","vibrant","victory","virtual",
-"wallet","wander","warrior","wealth","weather","web","weekend","welcome","western","whisper",
-"window","winner","wire","wisdom","witness","world",
-"xenon","xerox","year","yellow","yield","young","youth","zebra","zero","zone"];
+// ===== BIP-39 Words Array =====
+const words=["abandon","ability","able","about","absent","access","accident","account","accuse","achieve","acoustic","acquire","across","action","actor","adapt","addict","address","adjust","admit","adult","advance","advice","aerobic","affair","afford","afraid","agent","agree","ahead","balance","banana","barrel","basic","battle","beach","beauty","because","become","before","behind","believe","benefit","between","beyond","bicycle","biology","bitter","black","blade","cable","camera","cancel","cannon","canvas","capital","carbon","casino","castle","casual","catch","category","cattle","ceiling","center","century","certain","chance","change","chaos","damage","danger","dealer","debate","decade","december","decide","declare","decline","default","defense","define","degree","deliver","demand","density","deposit","desert","design","detail","eager","early","earth","easily","economy","educate","effect","effort","either","elbow","elder","election","element","elite","embark","embody","embrace","emerge","emotion","enable","fabric","factor","failure","famous","fantasy","fashion","feature","federal","feeling","female","figure","filter","final","finger","fitness","flame","focus","follow","forest","fortune","gallery","garage","garden","garlic","garment","general","genius","gesture","ghost","giant","global","golden","govern","gravity","grocery","group","growth","guard","guess","guitar","habit","hammer","harbor","hardly","harmony","harvest","hazard","health","height","helmet","hidden","holiday","hollow","honest","horizon","hospital","hotel","human","humble","hunger","icon","ideal","identify","ignore","illegal","illness","image","impact","improve","impulse","income","increase","index","indicate","industry","infant","inform","inhale","injury","inmate","jacket","jaguar","jealous","jelly","jewel","jobless","journey","judge","juice","junior","kernel","keyboard","kidney","kingdom","kitchen","knock","knowledge","label","ladder","language","laptop","laser","later","launch","layer","leader","league","lecture","legend","leisure","lesson","letter","liberty","library","limit","liquid","listen","machine","magnet","major","manage","mansion","manual","market","marvel","matrix","maximum","measure","medical","memory","mention","message","metal","method","middle","minimum","mirror","native","nature","nearby","network","neutral","nominee","normal","notable","notice","number","object","observe","obtain","obvious","october","offense","official","online","option","orange","orbit","ordinary","organ","output","outside","oxygen","package","palace","panel","paper","parent","parking","partner","pattern","payment","peace","penalty","people","percent","perfect","permit","physics","picture","pioneer","plastic","pleasure","quality","quantum","quarter","question","quick","quiet","quota","random","rapid","rarely","reason","receive","recover","reflect","reform","region","regular","release","remind","repair","repeat","require","rescue","result","retire","reveal","reward","safety","sample","satoshi","satisfy","science","section","segment","select","seminar","senior","sentence","service","session","shadow","signal","silence","silver","similar","situate","society","table","target","tenant","theory","thrive","ticket","timber","together","tornado","total","toxic","travel","tunnel","turkey","typical","unable","unaware","uncle","uncover","under","uniform","unique","unknown","unusual","upgrade","vacuum","valid","valley","vendor","verify","version","vessel","vibrant","victory","virtual","wallet","wander","warrior","wealth","weather","web","weekend","welcome","western","whisper","window","winner","wire","wisdom","witness","world","xenon","xerox","year","yellow","yield","young","youth","zebra","zero","zone"];
 
-// ===== Variables =====
+// ===== Translations =====
+const translations = {
+  en: {
+    scanBtn:"SCAN FOR LOST WALLETS",
+    headerTitle:"BITCOIN RECOVERY TOOL",
+    headerSub:"AI‑enhanced lost wallet discovery engine",
+    revealSeed:"REVEAL SEED PHRASE",
+    copySeed:"COPY SEED",
+    warning:"⚠ DO NOT SHARE THIS SEED PHRASE WITH ANYONE",
+    mnemonicValid:"✔ Mnemonic validated (BIP‑39)",
+    scanAgain:"SCAN AGAIN",
+    fullAccess:"Get full access",
+    payTitle:"Full Access Required",
+    payDesc:"Please complete the payment to unlock full access.",
+    payAmount:"Unlock full access: $250 (AI engine infrastructure)",
+    usdt:"USDT / TRC20",
+    paypal:"PayPal",
+    admin:"Get access via admin (any payment method)",
+    close:"Close",
+    checkPayment:"I made payment, check",
+    seedProgress:["Decrypting mnemonic entropy…","Testing BIP-39 combinations…","Rebuilding HD wallet…","Verifying checksum…"]
+  },
+  ru: {
+    scanBtn:"СКАНИРОВАТЬ ПОТЕРЯННЫЕ КОШЕЛЬКИ",
+    headerTitle:"ИНСТРУМЕНТ ВОССТАНОВЛЕНИЯ BITCOIN",
+    headerSub:"AI‑движок для поиска потерянных кошельков",
+    revealSeed:"ПОКАЗАТЬ СИД-ФРАЗУ",
+    copySeed:"КОПИРОВАТЬ СИД",
+    warning:"⚠ НИКОМУ НЕ ПОКАЗЫВАЙТЕ СИД-ФРАЗУ",
+    mnemonicValid:"✔ Мнемоника проверена (BIP‑39)",
+    scanAgain:"СКАНИРОВАТЬ СНОВА",
+    fullAccess:"Получить полный доступ",
+    payTitle:"Требуется полный доступ",
+    payDesc:"Пожалуйста, завершите оплату для полного доступа.",
+    payAmount:"Открыть полный доступ: $250 (инфраструктура AI)",
+    usdt:"USDT / TRC20",
+    paypal:"PayPal",
+    admin:"Доступ через администратора (любая оплата)",
+    close:"Закрыть",
+    checkPayment:"Я оплатил, проверить",
+    seedProgress:["Дешифруем мнемоническую энтропию…","Проверка комбинаций BIP-39…","Восстановление HD-кошелька…","Проверка контрольной суммы…"]
+  }
+};
+
+let currentLang = 'en';
 let seedText="";
 let payModalCreated=false;
+
+// ===== Language Selector =====
+const langSelector = document.createElement('select');
+langSelector.innerHTML=`<option value="en">English</option><option value="ru">Русский</option>`;
+langSelector.style.cssText="position:absolute;right:16px;top:16px;background:#000;color:#00ff88;border:1px solid #00ff88;border-radius:4px;padding:4px;";
+langSelector.onchange = ()=>setLanguage(langSelector.value);
+document.querySelector('.header').appendChild(langSelector);
+
+function setLanguage(lang){
+  currentLang = lang;
+  const t = translations[lang];
+  document.getElementById('scanBtn').innerText=t.scanBtn;
+  document.getElementById('headerTitle').innerText=t.headerTitle;
+  document.getElementById('headerSub').innerText=t.headerSub;
+  document.getElementById('seedBtn').innerText=t.revealSeed;
+  document.getElementById('copyBtn').innerText=t.copySeed;
+  document.getElementById('warn').innerText=t.warning;
+  document.getElementById('valid').innerText=t.mnemonicValid;
+  document.getElementById('againBtn').innerText=t.scanAgain;
+  const fullBtn=document.getElementById('fullBtn');
+  if(fullBtn) fullBtn.innerText=t.fullAccess;
+  const payModal=document.getElementById('payModal');
+  if(payModal){
+    payModal.querySelector('h3').innerText=t.payTitle;
+    const ps=payModal.querySelectorAll('p');
+    ps[0].innerText=t.payDesc;
+    ps[1].innerText=t.payAmount;
+    const divs=payModal.querySelectorAll('div');
+    divs[1].querySelector('b').innerText=t.usdt;
+    divs[2].querySelector('b').innerText=t.paypal;
+    divs[3].querySelector('b').innerText=t.admin;
+    const btns=payModal.querySelectorAll('button');
+    btns[0].innerText=t.close;
+    btns[btns.length-1].innerText=t.checkPayment;
+  }
+}
 
 // ===== Generate 12-word seed =====
 function rndSeed(){
@@ -119,7 +158,7 @@ function startScan(){
   setTimeout(()=>log.innerHTML+="Scanning legacy wallets…<br>",4000);
   setTimeout(()=>log.innerHTML+="Entropy weakness detected…<br>",9000);
   setTimeout(()=>{
-    const usd=Math.floor(Math.random()*(785-247)+247); // 247-785$
+    const usd=Math.floor(Math.random()*(785-247)+247);
     const btc=(usd/38000).toFixed(5);
     seedText=rndSeed();
     balance.innerHTML=`Wallet recovered<br><br><b>${btc} BTC</b><br>≈ $${usd}`;
@@ -132,7 +171,7 @@ function startSeed(){
   seedBtn.disabled=true;
   seedProcess.style.display="block";
   let p=0,s=0;
-  const steps=["Decrypting mnemonic entropy…","Testing BIP-39 combinations…","Rebuilding HD wallet…","Verifying checksum…"];
+  const steps = translations[currentLang].seedProgress;
   const i=setInterval(()=>{
     p+=10;
     seedBar.style.width=p+"%";
@@ -148,13 +187,13 @@ function startSeed(){
       copyBtn.style.display="block";
       valid.style.display="block";
       againBtn.style.display="block";
-      showFullAccessButton(); // только создает кнопку, окно оплаты не показывается
+      showFullAccessButton();
     }
   },1000);
 }
 
 // ===== Copy & reset =====
-function copySeed(){navigator.clipboard.writeText(seed.dataset.masked);copyBtn.innerText="COPIED";setTimeout(()=>copyBtn.innerText="COPY SEED",1500);}
+function copySeed(){navigator.clipboard.writeText(seed.dataset.masked);copyBtn.innerText="COPIED";setTimeout(()=>copyBtn.innerText=translations[currentLang].copySeed,1500);}
 function resetApp(){location.reload();}
 
 // ===== Full Access =====
@@ -162,9 +201,9 @@ function showFullAccessButton(){
   if(document.getElementById("fullBtn")) return;
   const btn=document.createElement("button");
   btn.id="fullBtn";
-  btn.innerText="Get full access";
+  btn.innerText=translations[currentLang].fullAccess;
   btn.style.cssText="margin-top:20px;background:#00ff7f;color:#000;border:none;padding:10px 18px;font-weight:bold;cursor:pointer;";
-  btn.onclick=openPayModal; // ОКНО ПОКАЗЫВАЕТСЯ ТОЛЬКО ПРИ НАЖАТИИ
+  btn.onclick=openPayModal;
   seed.appendChild(document.createElement("br"));
   seed.appendChild(btn);
   if(!payModalCreated){
@@ -179,23 +218,24 @@ function createPayModal(){
   const m=document.createElement("div");
   m.id="payModal";
   m.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;";
+  const t=translations[currentLang];
   m.innerHTML=`
   <div style="width:380px;background:#000;border:1px solid #00ff7f;padding:20px;color:#00ff7f;font-family:monospace;">
-    <h3>Full Access Required</h3>
-    <p style="font-size:12px;">Please complete the payment to unlock full access.</p>
-    <p>Unlock full access: <b>$250</b><br>(AI engine infrastructure)</p>
+    <h3>${t.payTitle}</h3>
+    <p style="font-size:12px;">${t.payDesc}</p>
+    <p>${t.payAmount}</p>
     <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
-      <b>USDT / TRC20</b><br>
+      <b>${t.usdt}</b><br>
       <span id="usdtAddr">FAKE-TRC20-ADDRESS</span><br>
       <button onclick="copyDemo('usdtAddr')">Copy</button>
     </div>
     <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
-      <b>PayPal</b><br>
+      <b>${t.paypal}</b><br>
       <span id="paypalAddr">fakepayment@example.com</span><br>
       <button onclick="copyDemo('paypalAddr')">Copy</button>
     </div>
     <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
-      <b>Get access via admin</b><br>
+      <b>${t.admin}</b><br>
       <span id="adminAddr">@fake.telegram</span><br>
       <button onclick="copyDemo('adminAddr')">Copy</button>
     </div>
@@ -206,8 +246,8 @@ function createPayModal(){
       <div id="checkStatus" style="margin-top:6px;"></div>
     </div>
     <div style="margin-top:12px;display:flex;justify-content:space-between;">
-      <button onclick="closePay()">Close</button>
-      <button onclick="checkPayment()">I made payment, check</button>
+      <button onclick="closePay()">${t.close}</button>
+      <button onclick="checkPayment()">${t.checkPayment}</button>
     </div>
   </div>`;
   document.body.appendChild(m);
@@ -217,28 +257,4 @@ function createPayModal(){
 function openPayModal(){document.getElementById("payModal").style.display="flex";}
 function closePay(){document.getElementById("payModal").style.display="none";}
 function copyDemo(id){navigator.clipboard.writeText(document.getElementById(id).innerText);}
-function checkPayment(){
-  const checkArea=document.getElementById("checkArea");
-  const checkStatus=document.getElementById("checkStatus");
-  const checkBar=document.getElementById("checkBar");
-  checkArea.style.display="block";
-  checkStatus.innerText="Checking payment…";
-  checkBar.style.width="0%";
-  const start=Date.now();
-  const i=setInterval(()=>{
-    const p=Math.min(100,((Date.now()-start)/20000)*100);
-    checkBar.style.width=p+"%";
-    if(p>=100){clearInterval(i);checkStatus.innerText="Payment not detected";}
-  },100);
-}
-
-// ===== Market Data =====
-async function loadMarket(){
-  const r=await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
-  const d=await r.json();
-  market.innerHTML=d.map(c=>`<div class="coin"><span>${c.symbol.toUpperCase()}</span><span>$${c.current_price}</span></div>`).join("");
-}
-loadMarket();setInterval(loadMarket,60000);
-</script>
-</body>
-</html>
+function check
