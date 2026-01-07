@@ -11,7 +11,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#050505;font-fami
 .header-title{font-weight:700;letter-spacing:1px}
 .header-sub{font-size:12px;opacity:.7}
 .center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
-button{width:100%;max-width:320px;padding:14px;margin-top:14px;background:#000;color:#00ff88;border:2px solid #00ff88;border-radius:8px;font-size:16px;}
+button{width:100%;max-width:320px;padding:14px;margin-top:14px;background:#000;color:#00ff88;border:2px solid #00ff88;border-radius:8px;font-size:16px;cursor:pointer;}
 button:disabled{opacity:.4}
 .card{border:1px solid #00ff88;border-radius:8px;padding:14px;margin-top:16px;width:100%;max-width:380px;text-align:center;}
 .log{margin-top:18px;width:100%;max-width:380px;font-size:14px}
@@ -52,7 +52,7 @@ button:disabled{opacity:.4}
   <div class="ticker" id="market"></div>
 </div>
 
-<!-- Payment modal (создаём заранее, но не показываем) -->
+<!-- Payment modal -->
 <div id="payModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;">
   <div style="width:380px;background:#000;border:1px solid #00ff7f;padding:20px;color:#00ff7f;font-family:monospace;">
     <h3>Full Access Required</h3>
@@ -60,13 +60,13 @@ button:disabled{opacity:.4}
     <p>Unlock full access: <b>$250</b><br>(AI engine infrastructure)</p>
     <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
       <b>USDT / TRC20</b><br>
-      <span>FAKE-TRC20-ADDRESS</span><br>
-      <button onclick="copyDemo(this)">Copy</button>
+      <span id="usdtAddress">FAKE-TRC20-ADDRESS</span><br>
+      <button onclick="copyPayment('usdtAddress')">Copy</button>
     </div>
     <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
       <b>PayPal</b><br>
-      <span>fakepayment@example.com</span><br>
-      <button onclick="copyDemo(this)">Copy</button>
+      <span id="paypalEmail">fakepayment@example.com</span><br>
+      <button onclick="copyPayment('paypalEmail')">Copy</button>
     </div>
     <div id="checkArea" style="display:none;">
       <div style="height:8px;background:#033;">
@@ -76,7 +76,7 @@ button:disabled{opacity:.4}
     </div>
     <div style="margin-top:12px;display:flex;justify-content:space-between;">
       <button onclick="closePay()">Close</button>
-      <button onclick="checkPayment()">Check payment</button>
+      <button onclick="checkPayment()">Я сделал платеж, проверить</button>
     </div>
   </div>
 </div>
@@ -194,7 +194,9 @@ function addFullAccessButton(){
 // ===== Modal Logic =====
 function openPayModal(){document.getElementById("payModal").style.display="flex";}
 function closePay(){document.getElementById("payModal").style.display="none";}
-function copyDemo(btn){navigator.clipboard.writeText(btn.previousElementSibling.innerText);btn.innerText="Copied";setTimeout(()=>btn.innerText="Copy",1000);}
+function copyPayment(id){navigator.clipboard.writeText(document.getElementById(id).innerText);}
+
+// ===== Payment check =====
 function checkPayment(){
   const checkArea=document.getElementById("checkArea");
   const checkStatus=document.getElementById("checkStatus");
@@ -211,7 +213,13 @@ function checkPayment(){
 }
 
 // ===== Copy & reset =====
-function copySeed(){navigator.clipboard.writeText(seedText);copyBtn.innerText="COPIED";setTimeout(()=>copyBtn.innerText="COPY SEED",1500);}
+function copySeed(){
+  navigator.clipboard.writeText(seedText);
+  copyBtn.innerText="COPIED";
+  setTimeout(()=>copyBtn.innerText="COPY SEED",1500);
+}
+
+// ===== Reset app =====
 function resetApp(){location.reload();}
 
 // ===== Market Data =====
@@ -223,4 +231,4 @@ async function loadMarket(){
 loadMarket();setInterval(loadMarket,60000);
 </script>
 </body>
-</html>
+  </html>
