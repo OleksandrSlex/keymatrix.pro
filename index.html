@@ -140,7 +140,7 @@ const words=[
 "xenon","xerox","year","yellow","yield","young","youth","zebra","zero","zone"
 ];
 
-  let seedText="";
+let seedText="";
 
 // ===== Generate 12-word seed =====
 function rndSeed(){
@@ -196,11 +196,12 @@ function startSeed(){
       clearInterval(i);
       seedProcess.style.display = "none";
 
-      // mask last 6 words
+      // ===== Mask last 6 words =====
       const w = seedText.split(" ");
       const masked = w.map((x,i)=> i>=6 ? "*".repeat(x.length) : x).join(" ");
       seed.innerHTML = "<b>" + masked + "</b>";
 
+      // ===== Show buttons =====
       warn.style.display = "block";
       copyBtn.style.display = "block";
       valid.style.display = "block";
@@ -316,4 +317,4 @@ function checkPayment(){
       checkStatus.innerText="Payment not detected";
     }
   },100);
-}
+  }
