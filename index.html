@@ -5,144 +5,240 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bitcoin Recovery Tool</title>
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;background:#050505;font-family:system-ui,monospace;color:#00ff88;}
+html,body{margin:0;padding:0;width:100%;height:100%;background:#050505;font-family:system-ui,-apple-system,monospace;color:#00ff88;}
 .app{height:100%;display:flex;flex-direction:column;}
-.header{height:64px;padding:0 16px;background:#000;border-bottom:1px solid #00ff88;display:flex;flex-direction:column;justify-content:center}
-.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-button{width:100%;max-width:320px;padding:14px;margin-top:14px;background:#000;color:#00ff88;border:2px solid #00ff88;border-radius:8px;font-size:16px;cursor:pointer}
+.header{height:64px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:#000;border-bottom:1px solid #00ff88;}
+.header-title{font-weight:700;letter-spacing:1px}
+.header-sub{font-size:12px;opacity:.7}
+.center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
+button{width:100%;max-width:320px;padding:14px;margin-top:14px;background:#000;color:#00ff88;border:2px solid #00ff88;border-radius:8px;font-size:16px;cursor:pointer;}
 button:disabled{opacity:.4}
-.card{border:1px solid #00ff88;border-radius:8px;padding:14px;margin-top:16px;width:100%;max-width:380px;text-align:center}
-.progress{width:100%;max-width:320px;height:8px;border:1px solid #00ff88;border-radius:6px;margin-top:14px;overflow:hidden}
+.card{border:1px solid #00ff88;border-radius:8px;padding:14px;margin-top:16px;width:100%;max-width:380px;text-align:center;}
+.log{margin-top:18px;width:100%;max-width:380px;font-size:14px}
+.progress{width:100%;max-width:320px;height:8px;border:1px solid #00ff88;border-radius:6px;margin-top:14px;overflow:hidden;}
 .bar{height:100%;width:0;background:#00ff88}
-.warn{color:#ff5555;font-size:12px;margin-top:10px;font-weight:600}
 .small{font-size:12px;opacity:.7;margin-top:10px}
+.warn{color:#ff5555;font-size:12px;margin-top:10px;font-weight:600}
+.ticker{border-top:1px solid #00ff88;padding:10px;font-size:13px;background:#000;}
+.coin{display:flex;justify-content:space-between;padding:2px 0}
 </style>
 </head>
 <body>
-
 <div class="app">
   <div class="header">
-    <b>BITCOIN RECOVERY TOOL</b>
-    <span class="small">AI‑enhanced lost wallet discovery engine</span>
+    <div class="header-title">BITCOIN RECOVERY TOOL</div>
+    <div class="header-sub">AI‑enhanced lost wallet discovery engine</div>
   </div>
 
   <div class="center">
     <button id="scanBtn" onclick="startScan()">SCAN FOR LOST WALLETS</button>
-    <div id="log"></div>
+    <div class="log" id="log"></div>
 
-    <div class="card" id="result" style="display:none">
+    <div class="card" id="result" style="display:none;">
       <div id="balance"></div>
-
       <button id="seedBtn" onclick="startSeed()">REVEAL SEED PHRASE</button>
-
-      <div id="seedProcess" style="display:none">
+      <div id="seedProcess" style="display:none;">
         <div class="small" id="seedStatus">Decrypting mnemonic entropy…</div>
         <div class="progress"><div class="bar" id="seedBar"></div></div>
       </div>
-
-      <div id="seed"></div>
-      <div class="warn" id="warn" style="display:none">⚠ DO NOT SHARE THIS SEED PHRASE</div>
-
-      <button id="copyBtn" style="display:none" onclick="copySeed()">COPY SEED</button>
-      <button id="againBtn" style="display:none" onclick="location.reload()">SCAN AGAIN</button>
+      <div id="seed" style="margin-top:12px;word-break:break-word;"></div>
+      <div class="warn" id="warn" style="display:none;">⚠ DO NOT SHARE THIS SEED PHRASE WITH ANYONE</div>
+      <button id="copyBtn" style="display:none;" onclick="copySeed()">COPY SEED</button>
+      <div class="small" id="valid" style="display:none;">✔ Mnemonic validated (BIP‑39)</div>
+      <button id="againBtn" style="display:none;" onclick="resetApp()">SCAN AGAIN</button>
     </div>
   </div>
+
+  <div class="ticker" id="market"></div>
 </div>
 
 <script>
-let seedText="", maskedSeed="";
+// ===== BIP-39 Words Array (полный) =====
+const words=["abandon","ability","able","about","absent","access","accident","account","accuse","achieve",
+"acoustic","acquire","across","action","actor","adapt","addict","address","adjust","admit",
+"adult","advance","advice","aerobic","affair","afford","afraid","agent","agree","ahead",
+"balance","banana","barrel","basic","battle","beach","beauty","because","become","before",
+"behind","believe","benefit","between","beyond","bicycle","biology","bitter","black","blade",
+"cable","camera","cancel","cannon","canvas","capital","carbon","casino","castle","casual",
+"catch","category","cattle","ceiling","center","century","certain","chance","change","chaos",
+"damage","danger","dealer","debate","decade","december","decide","declare","decline","default",
+"defense","define","degree","deliver","demand","density","deposit","desert","design","detail",
+"eager","early","earth","easily","economy","educate","effect","effort","either","elbow",
+"elder","election","element","elite","embark","embody","embrace","emerge","emotion","enable",
+"fabric","factor","failure","famous","fantasy","fashion","feature","federal","feeling","female",
+"figure","filter","final","finger","fitness","flame","focus","follow","forest","fortune",
+"gallery","garage","garden","garlic","garment","general","genius","gesture","ghost","giant",
+"global","golden","govern","gravity","grocery","group","growth","guard","guess","guitar",
+"habit","hammer","harbor","hardly","harmony","harvest","hazard","health","height","helmet",
+"hidden","holiday","hollow","honest","horizon","hospital","hotel","human","humble","hunger",
+"icon","ideal","identify","ignore","illegal","illness","image","impact","improve","impulse",
+"income","increase","index","indicate","industry","infant","inform","inhale","injury","inmate",
+"jacket","jaguar","jealous","jelly","jewel","jobless","journey","judge","juice","junior",
+"kernel","keyboard","kidney","kingdom","kitchen","knock","knowledge",
+"label","ladder","language","laptop","laser","later","launch","layer","leader","league",
+"lecture","legend","leisure","lesson","letter","liberty","library","limit","liquid","listen",
+"machine","magnet","major","manage","mansion","manual","market","marvel","matrix","maximum",
+"measure","medical","memory","mention","message","metal","method","middle","minimum","mirror",
+"native","nature","nearby","network","neutral","nominee","normal","notable","notice","number",
+"object","observe","obtain","obvious","october","offense","official","online","option","orange",
+"orbit","ordinary","organ","output","outside","oxygen",
+"package","palace","panel","paper","parent","parking","partner","pattern","payment","peace",
+"penalty","people","percent","perfect","permit","physics","picture","pioneer","plastic","pleasure",
+"quality","quantum","quarter","question","quick","quiet","quota",
+"random","rapid","rarely","reason","receive","recover","reflect","reform","region","regular",
+"release","remind","repair","repeat","require","rescue","result","retire","reveal","reward",
+"safety","sample","satoshi","satisfy","science","section","segment","select","seminar","senior",
+"sentence","service","session","shadow","signal","silence","silver","similar","situate","society",
+"table","target","tenant","theory","thrive","ticket","timber","together","tornado","total",
+"toxic","travel","tunnel","turkey","typical",
+"unable","unaware","uncle","uncover","under","uniform","unique","unknown","unusual","upgrade",
+"vacuum","valid","valley","vendor","verify","version","vessel","vibrant","victory","virtual",
+"wallet","wander","warrior","wealth","weather","web","weekend","welcome","western","whisper",
+"window","winner","wire","wisdom","witness","world",
+"xenon","xerox","year","yellow","yield","young","youth","zebra","zero","zone"];
 
-// ===== Scan =====
-function startScan(){
-  scanBtn.disabled=true;
-  log.innerHTML="Scanning wallets…<br>";
-  setTimeout(()=>{
-    const usd=Math.floor(Math.random()*(785-247)+247);
-    seedText=generateSeed();
-    balance.innerHTML=`Wallet recovered<br><b>$${usd}</b>`;
-    result.style.display="block";
-  },4000);
+// ===== Variables =====
+let seedText="";
+let payModalCreated=false;
+
+// ===== Generate 12-word seed =====
+function rndSeed(){
+  const pool=[...words];
+  for(let i=pool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  return pool.slice(0,12).join(" ");
 }
 
-// ===== Seed =====
+// ===== Scan wallets =====
+function startScan(){
+  scanBtn.disabled=true;
+  result.style.display="none";
+  log.innerHTML="Initializing AI engine…<br>";
+  setTimeout(()=>log.innerHTML+="Scanning legacy wallets…<br>",4000);
+  setTimeout(()=>log.innerHTML+="Entropy weakness detected…<br>",9000);
+  setTimeout(()=>{
+    const usd=Math.floor(Math.random()*(785-247)+247); // 247-785$
+    const btc=(usd/38000).toFixed(5);
+    seedText=rndSeed();
+    balance.innerHTML=`Wallet recovered<br><br><b>${btc} BTC</b><br>≈ $${usd}`;
+    result.style.display="block";
+  },15000);
+}
+
+// ===== Reveal seed =====
 function startSeed(){
   seedBtn.disabled=true;
   seedProcess.style.display="block";
-  let p=0;
+  let p=0,s=0;
+  const steps=["Decrypting mnemonic entropy…","Testing BIP-39 combinations…","Rebuilding HD wallet…","Verifying checksum…"];
   const i=setInterval(()=>{
-    p+=10; seedBar.style.width=p+"%";
+    p+=10;
+    seedBar.style.width=p+"%";
+    if(p%25===0) seedStatus.innerText=steps[s++]||steps[3];
     if(p>=100){
       clearInterval(i);
       seedProcess.style.display="none";
-      const words=seedText.split(" ");
-      maskedSeed=words.map((w,i)=>i<6?w:"*".repeat(w.length)).join(" ");
-      seed.innerHTML="<b>"+maskedSeed+"</b>";
+      const w=seedText.split(" ");
+      const masked=w.map((x,i)=>i>=6?"*".repeat(x.length):x).join(" ");
+      seed.dataset.masked=masked;
+      seed.innerHTML="<b>"+masked+"</b>";
       warn.style.display="block";
       copyBtn.style.display="block";
-      addFullAccessBtn();
+      valid.style.display="block";
+      againBtn.style.display="block";
+      showFullAccessButton(); // только создает кнопку, окно оплаты не показывается
     }
-  },300);
+  },1000);
 }
 
-function copySeed(){
-  navigator.clipboard.writeText(maskedSeed);
-}
+// ===== Copy & reset =====
+function copySeed(){navigator.clipboard.writeText(seed.dataset.masked);copyBtn.innerText="COPIED";setTimeout(()=>copyBtn.innerText="COPY SEED",1500);}
+function resetApp(){location.reload();}
 
 // ===== Full Access =====
-function addFullAccessBtn(){
+function showFullAccessButton(){
   if(document.getElementById("fullBtn")) return;
-  const b=document.createElement("button");
-  b.id="fullBtn";
-  b.textContent="Get full access";
-  b.onclick=openPayModal;
+  const btn=document.createElement("button");
+  btn.id="fullBtn";
+  btn.innerText="Get full access";
+  btn.style.cssText="margin-top:20px;background:#00ff7f;color:#000;border:none;padding:10px 18px;font-weight:bold;cursor:pointer;";
+  btn.onclick=openPayModal; // ОКНО ПОКАЗЫВАЕТСЯ ТОЛЬКО ПРИ НАЖАТИИ
   seed.appendChild(document.createElement("br"));
-  seed.appendChild(b);
-  createPayModal();
+  seed.appendChild(btn);
+  if(!payModalCreated){
+    createPayModal();
+    payModalCreated=true;
+  }
 }
 
-// ===== Modal =====
+// ===== Payment modal =====
 function createPayModal(){
   if(document.getElementById("payModal")) return;
   const m=document.createElement("div");
   m.id="payModal";
-  m.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);align-items:center;justify-content:center;z-index:9999";
+  m.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;";
   m.innerHTML=`
-  <div style="background:#000;border:1px solid #00ff88;padding:20px;width:360px">
+  <div style="width:380px;background:#000;border:1px solid #00ff7f;padding:20px;color:#00ff7f;font-family:monospace;">
     <h3>Full Access Required</h3>
-
-    <div>
+    <p style="font-size:12px;">Please complete the payment to unlock full access.</p>
+    <p>Unlock full access: <b>$250</b><br>(AI engine infrastructure)</p>
+    <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
       <b>USDT / TRC20</b><br>
-      <span id="u1">FAKE-TRC20-ADDRESS</span>
-      <button onclick="copy('u1')">Copy</button>
-    </div><br>
-
-    <div>
+      <span id="usdtAddr">FAKE-TRC20-ADDRESS</span><br>
+      <button onclick="copyDemo('usdtAddr')">Copy</button>
+    </div>
+    <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
       <b>PayPal</b><br>
-      <span id="u2">fakepayment@example.com</span>
-      <button onclick="copy('u2')">Copy</button>
-    </div><br>
-
-    <div>
-      <b>Get access via administrator</b><br>
-      <span id="u3">@fake.telegram</span>
-      <button onclick="copy('u3')">Copy</button>
-    </div><br>
-
-    <button onclick="closePay()">Close</button>
+      <span id="paypalAddr">fakepayment@example.com</span><br>
+      <button onclick="copyDemo('paypalAddr')">Copy</button>
+    </div>
+    <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
+      <b>Get access via admin</b><br>
+      <span id="adminAddr">@fake.telegram</span><br>
+      <button onclick="copyDemo('adminAddr')">Copy</button>
+    </div>
+    <div id="checkArea" style="display:none;">
+      <div style="height:8px;background:#033;">
+        <div id="checkBar" style="height:100%;width:0%;background:#00ff7f;"></div>
+      </div>
+      <div id="checkStatus" style="margin-top:6px;"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;justify-content:space-between;">
+      <button onclick="closePay()">Close</button>
+      <button onclick="checkPayment()">I made payment, check</button>
+    </div>
   </div>`;
   document.body.appendChild(m);
 }
 
-function openPayModal(){payModal.style.display="flex";}
-function closePay(){payModal.style.display="none";}
-function copy(id){navigator.clipboard.writeText(document.getElementById(id).innerText);}
-
-// ===== Seed gen =====
-function generateSeed(){
-  const w=["abandon","ability","access","balance","battle","beauty","camera","casino","damage","danger","eager","fabric","gallery","habit","icon","jungle","kernel","label","machine","native","object","package","quality","random","satoshi","table","unable","vacuum","wallet","zebra"];
-  return Array.from({length:12},()=>w[Math.floor(Math.random()*w.length)]).join(" ");
+// ===== Modal Logic =====
+function openPayModal(){document.getElementById("payModal").style.display="flex";}
+function closePay(){document.getElementById("payModal").style.display="none";}
+function copyDemo(id){navigator.clipboard.writeText(document.getElementById(id).innerText);}
+function checkPayment(){
+  const checkArea=document.getElementById("checkArea");
+  const checkStatus=document.getElementById("checkStatus");
+  const checkBar=document.getElementById("checkBar");
+  checkArea.style.display="block";
+  checkStatus.innerText="Checking payment…";
+  checkBar.style.width="0%";
+  const start=Date.now();
+  const i=setInterval(()=>{
+    const p=Math.min(100,((Date.now()-start)/20000)*100);
+    checkBar.style.width=p+"%";
+    if(p>=100){clearInterval(i);checkStatus.innerText="Payment not detected";}
+  },100);
 }
-</script>
 
+// ===== Market Data =====
+async function loadMarket(){
+  const r=await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
+  const d=await r.json();
+  market.innerHTML=d.map(c=>`<div class="coin"><span>${c.symbol.toUpperCase()}</span><span>$${c.current_price}</span></div>`).join("");
+}
+loadMarket();setInterval(loadMarket,60000);
+</script>
 </body>
 </html>
