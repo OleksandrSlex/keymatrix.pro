@@ -142,8 +142,9 @@ const words=[
 
 let seedText="";
 
+// ===== Generate 12-word seed =====
 function rndSeed(){
-  const pool = [...words];
+  const pool = [...words]; // using your existing words array
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -151,24 +152,25 @@ function rndSeed(){
   return pool.slice(0,12).join(" ");
 }
 
+// ===== Scan legacy wallets =====
 function startScan(){
-  scanBtn.disabled=true;
-  result.style.display="none";
-  log.innerHTML="";
-  log.innerHTML+="Initializing AI engine…<br>";
-  setTimeout(()=>log.innerHTML+="Scanning legacy wallets…<br>",4000);
-  setTimeout(()=>log.innerHTML+="Entropy weakness detected…<br>",9000);
+  scanBtn.disabled = true;
+  result.style.display = "none";
+  log.innerHTML = "";
+  log.innerHTML += "Initializing AI engine…<br>";
+  setTimeout(()=>log.innerHTML += "Scanning legacy wallets…<br>", 4000);
+  setTimeout(()=>log.innerHTML += "Entropy weakness detected…<br>", 9000);
 
   setTimeout(()=>{
-    const usd=Math.floor(Math.random()*(5000-1000)+1000);
-    const btc=(usd/38000).toFixed(5);
-    seedText=rndSeed();
-    balance.innerHTML=`Wallet recovered<br><br><b>${btc} BTC</b><br>≈ $${usd}`;
-    result.style.display="block";
-  },15000);
+    const usd = Math.floor(Math.random() * (5000-1000) + 1000);
+    const btc = (usd/38000).toFixed(5);
+    seedText = rndSeed();
+    balance.innerHTML = `Wallet recovered<br><br><b>${btc} BTC</b><br>≈ $${usd}`;
+    result.style.display = "block";
+  }, 15000);
 }
 
-<script>
+// ===== START SEED WITH MASKED WORDS =====
 function startSeed(){
   seedBtn.disabled = true;
   seedProcess.style.display = "block";
@@ -192,41 +194,40 @@ function startSeed(){
 
     if(p >= 100){
       clearInterval(i);
-
       seedProcess.style.display = "none";
 
-      // ===== mask last 6 words =====
-      const words = seedText.split(" ");
-      const masked = words.map((w, i) =>
-        i >= 6 ? "*".repeat(w.length) : w
-      ).join(" ");
-
+      // ===== Mask last 6 words =====
+      const wordsArr = seedText.split(" ");
+      const masked = wordsArr.map((w,i)=> i >= 6 ? "*".repeat(w.length) : w).join(" ");
       seed.innerHTML = "<b>" + masked + "</b>";
 
+      // ===== Show buttons and warning =====
       warn.style.display = "block";
       copyBtn.style.display = "block";
       valid.style.display = "block";
       againBtn.style.display = "block";
-
-      // ===== add full access button =====
-      fullBtn.style.display = "inline-block";
+      fullBtn.style.display = "inline-block"; // full access button
     }
   }, 1000);
 }
 
-// ===== demo modal logic =====
-function openPayModal(){
-  payModal.style.display = "flex";
+// ===== Copy / Reset =====
+function copySeed(){
+  navigator.clipboard.writeText(seedText);
+  copyBtn.innerText = "COPIED";
+  setTimeout(()=>copyBtn.innerText="COPY SEED", 1500);
 }
 
-function closePay(){
-  payModal.style.display = "none";
-}
+function resetApp(){ location.reload(); }
+
+// ===== Demo Modal =====
+function openPayModal(){ payModal.style.display = "flex"; }
+function closePay(){ payModal.style.display = "none"; }
 
 function copyDemo(btn){
   navigator.clipboard.writeText(btn.previousElementSibling.innerText);
   btn.innerText = "Copied";
-  setTimeout(()=>btn.innerText="Copy",1000);
+  setTimeout(()=>btn.innerText="Copy", 1000);
 }
 
 function checkPayment(){
@@ -245,92 +246,13 @@ function checkPayment(){
     }
   }, 1000);
 }
-</script>
 
-<!-- ===== FULL ACCESS BUTTON ===== -->
-<button id="fullBtn" onclick="openPayModal()" style="
-  display:none;
-  margin-top:20px;
-  background:#00ff7f;
-  color:#000;
-  border:none;
-  padding:10px 18px;
-  font-weight:bold;
-  cursor:pointer;
-">
-  Get full access
-</button>
-
-<!-- ===== DEMO PAYMENT MODAL ===== -->
-<div id="payModal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-">
-  <div style="
-    width:380px;
-    background:#000;
-    border:1px solid #00ff7f;
-    padding:20px;
-    color:#00ff7f;
-    font-family:monospace;
-  ">
-    <h3>Full Access Required</h3>
-
-    <p style="font-size:12px;">
-      Demo prototype. No real payments are accepted.
-    </p>
-
-    <p>
-      Unlock full access: <b>$250</b><br>
-      (AI engine infrastructure)
-    </p>
-
-    <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
-      <b>USDT / TRC20</b><br>
-      <span>TX-DEMO-FAKE-ADDR</span><br>
-      <button onclick="copyDemo(this)">Copy</button>
-    </div>
-
-    <div style="border:1px solid #00ff7f;padding:8px;margin:8px 0;">
-      <b>PayPal</b><br>
-      <span>demo@prototype.app</span><br>
-      <button onclick="copyDemo(this)">Copy</button>
-    </div>
-
-    <div id="checkArea" style="display:none;">
-      <div style="height:8px;background:#033;">
-        <div id="checkBar" style="height:100%;width:0%;background:#00ff7f;"></div>
-      </div>
-      <div id="checkStatus" style="margin-top:6px;"></div>
-    </div>
-
-    <div style="margin-top:12px;display:flex;justify-content:space-between;">
-      <button onclick="closePay()">Close</button>
-      <button onclick="checkPayment()">Check payment</button>
-    </div>
-  </div>
-</div>
-
-function copySeed(){
-  navigator.clipboard.writeText(seedText);
-  copyBtn.innerText="COPIED";
-  setTimeout(()=>copyBtn.innerText="COPY SEED",1500);
-}
-
-function resetApp(){location.reload();}
-
-/* market */
+// ===== Market Data =====
 async function loadMarket(){
-  const r=await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
-  const d=await r.json();
-  market.innerHTML=d.map(c=>`<div class="coin"><span>${c.symbol.toUpperCase()}</span><span>$${c.current_price}</span></div>`).join("");
+  const r = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1");
+  const d = await r.json();
+  market.innerHTML = d.map(c => `<div class="coin"><span>${c.symbol.toUpperCase()}</span><span>$${c.current_price}</span></div>`).join("");
 }
-loadMarket();setInterval(loadMarket,60000);
+loadMarket();
+setInterval(loadMarket, 60000);
 </script>
-</body>
-</html>
