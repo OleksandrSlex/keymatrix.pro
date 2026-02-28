@@ -27,6 +27,9 @@ html, body {
   width: 100%;
   margin: 14px auto 0 auto;
 }
+  .bar {
+  transition: width 0.3s ease;
+}
 /* Background overlay */
 #bgOverlay {
   position: fixed;
@@ -226,7 +229,7 @@ document.getElementById("scanBtn").onclick = function(){
   setTimeout(()=>log.innerHTML+="Scanning legacy wallets…<br>",4000);
   setTimeout(()=>log.innerHTML+="Entropy weakness detected…<br>",9000);
   setTimeout(()=>{
-    const usd=Math.floor(Math.random()*(785-247)+247); // 247-785$
+    const usd=Math.floor(Math.random()*(576-247)+247); // 247-576$
     const btc=(usd/38000).toFixed(5);
     seedText=rndSeed();
     balance.innerHTML=`Wallet recovered<br><br><b>${btc} BTC</b><br>≈ $${usd}`;
@@ -334,8 +337,8 @@ function createPayModal(){
       <div id="checkStatus" style="margin-top:6px;"></div>
     </div>
     <div style="margin-top:12px;display:flex;justify-content:space-between;">
-      <button onclick="closePay()">Close</button>
-      <button onclick="checkPayment()">I made payment, check</button>
+      <button onclick="closePay()">Close, Reveal Half Seed</button>
+      <button onclick="checkPayment()">I made payment, Check</button>
     </div>
   </div>`;
   document.body.appendChild(m);
