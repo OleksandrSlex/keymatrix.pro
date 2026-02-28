@@ -357,7 +357,7 @@ function checkPayment(){
   checkBar.style.width="0%";
   const start=Date.now();
   const i=setInterval(()=>{
-    const p=Math.min(100,((Date.now()-start)/20000)*100);
+    const p=Math.min(100,((Date.now()-start)/5000)*100);
     checkBar.style.width=p+"%";
     if(p>=100){clearInterval(i);checkStatus.innerText="Payment not detected";}
   },100);
