@@ -5,81 +5,96 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bitcoin Recovery Tool</title>
 <style>
-html,body{
-margin:0;
-padding:0;
-width:100%;
-height:100%;
-font-family:system-ui,-apple-system,monospace;
-color:#00ff88;
-background:url("IMG_0081.jpeg") center/cover no-repeat;
+/* General styles */
+html, body {
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  font-family:system-ui,-apple-system,monospace;
+  color:#00ff88;
+  background:url("IMG_0081.jpeg") center/contain no-repeat;
+  background-color:#000;
 }
 
-.app{
-height:100%;
-display:flex;
-flex-direction:column;
-opacity:0;
-transition:opacity 1s ease;
+/* Main app */
+.app {
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  transition:opacity 1s ease;
 }
 
-/* Заставка */
-.splash{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:url("IMG_0081.jpeg") center/cover no-repeat;
-display:flex;
-justify-content:flex-end;
-align-items:center;
-flex-direction:column;
-animation:fadeIn 1.5s ease forwards;
-z-index:9999;
+/* Splash screen */
+.splash {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:url("IMG_0081.jpeg") center/contain no-repeat;
+  background-color:#000;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  flex-direction:column;
+  opacity:0;
+  z-index:9999;
+  animation: splashAnimation 3s forwards;
 }
 
-.splash-text{
-margin-bottom:60px;
-font-size:28px;
-font-weight:700;
-letter-spacing:2px;
-color:#ffffff;
-text-shadow:0 0 20px rgba(0,0,0,0.8);
-opacity:0;
-animation:fadeText 2s ease 1s forwards;
+.splash-text {
+  margin-bottom:60px;
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:2px;
+  color:#ffffff;
+  text-shadow:0 0 20px rgba(0,0,0,0.8);
+  opacity:0;
+  animation: textAnimation 3s forwards;
 }
 
-@keyframes fadeIn{
-from{opacity:0}
-to{opacity:1}
+/* Keyframes */
+@keyframes splashAnimation {
+  0% {opacity:0;}
+  33% {opacity:1;}   /* fade in 1s */
+  66% {opacity:1;}   /* hold 1s */
+  100% {opacity:0;}  /* fade out 1s */
 }
 
-@keyframes fadeText{
-from{opacity:0;transform:translateY(20px)}
-to{opacity:1;transform:translateY(0)}
+@keyframes textAnimation {
+  0% {opacity:0; transform:translateY(20px);}
+  33% {opacity:1; transform:translateY(0);}
+  66% {opacity:1; transform:translateY(0);}
+  100% {opacity:0; transform:translateY(-20px);}
 }
-.app{height:100%;display:flex;flex-direction:column;}
-.header{height:64px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:#000;border-bottom:1px solid #00ff88;}
-.header-title{font-weight:700;letter-spacing:1px}
-.header-sub{font-size:12px;opacity:.7}
-.center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
-button{width:100%;max-width:320px;padding:14px;margin-top:14px;background:#000;color:#00ff88;border:2px solid #00ff88;border-radius:8px;font-size:16px;cursor:pointer;}
-button:disabled{opacity:.4}
-.card{border:1px solid #00ff88;border-radius:8px;padding:14px;margin-top:16px;width:100%;max-width:380px;text-align:center;}
-.log{margin-top:18px;width:100%;max-width:380px;font-size:14px}
-.progress{width:100%;max-width:320px;height:8px;border:1px solid #00ff88;border-radius:6px;margin-top:14px;overflow:hidden;}
-.bar{height:100%;width:0;background:#00ff88}
-.small{font-size:12px;opacity:.7;margin-top:10px}
-.warn{color:#ff5555;font-size:12px;margin-top:10px;font-weight:600}
-.ticker{border-top:1px solid #00ff88;padding:10px;font-size:13px;background:#000;}
-.coin{display:flex;justify-content:space-between;padding:2px 0}
+
+/* Interface styles */
+.header {height:64px; display:flex; flex-direction:column; justify-content:center; padding:0 16px; background:#000; border-bottom:1px solid #00ff88;}
+.header-title {font-weight:700; letter-spacing:1px;}
+.header-sub {font-size:12px; opacity:.7;}
+.center {flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px;}
+button {width:100%; max-width:320px; padding:14px; margin-top:14px; background:#000; color:#00ff88; border:2px solid #00ff88; border-radius:8px; font-size:16px; cursor:pointer;}
+button:disabled {opacity:.4;}
+.card {border:1px solid #00ff88; border-radius:8px; padding:14px; margin-top:16px; width:100%; max-width:380px; text-align:center;}
+.log {margin-top:18px; width:100%; max-width:380px; font-size:14px;}
+.progress {width:100%; max-width:320px; height:8px; border:1px solid #00ff88; border-radius:6px; margin-top:14px; overflow:hidden;}
+.bar {height:100%; width:0; background:#00ff88;}
+.small {font-size:12px; opacity:.7; margin-top:10px;}
+.warn {color:#ff5555; font-size:12px; margin-top:10px; font-weight:600;}
+.ticker {border-top:1px solid #00ff88; padding:10px; font-size:13px; background:#000;}
+.coin {display:flex; justify-content:space-between; padding:2px 0;}
 </style>
 </head>
 <body>
-  <div class="splash">
+
+<!-- Splash screen -->
+<div class="splash">
   <div class="splash-text">Key Matrix Pro</div>
 </div>
+
+<!-- Main App -->
 <div class="app">
   <div class="header">
     <div class="header-title">BITCOIN RECOVERY TOOL</div>
@@ -97,7 +112,7 @@ button:disabled{opacity:.4}
         <div class="small" id="seedStatus">Decrypting mnemonic entropy…</div>
         <div class="progress"><div class="bar" id="seedBar"></div></div>
       </div>
-      <div id="seed" style="margin-top:12px;word-break:break-word;"></div>
+      <div id="seed" style="margin-top:12px; word-break:break-word;"></div>
       <div class="warn" id="warn" style="display:none;">⚠ DO NOT SHARE THIS SEED PHRASE WITH ANYONE</div>
       <button id="copyBtn" style="display:none;">COPY SEED</button>
       <div class="small" id="valid" style="display:none;">✔ Mnemonic validated (BIP‑39)</div>
@@ -107,6 +122,19 @@ button:disabled{opacity:.4}
 
   <div class="ticker" id="market"></div>
 </div>
+
+<script>
+window.addEventListener("load", function() {
+  const splash = document.querySelector(".splash");
+  const app = document.querySelector(".app");
+
+  // Show app after splash animation ends (3s)
+  setTimeout(function(){
+    app.style.opacity = "1";
+    splash.remove();
+  }, 3000);
+});
+</script>
 
 <script>
 // ===== BIP-39 Words Array =====
