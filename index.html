@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bitcoin Recovery Tool</title>
 <style>
-/* General styles */
 html, body {
   margin:0;
   padding:0;
@@ -13,8 +12,22 @@ html, body {
   height:100%;
   font-family:system-ui,-apple-system,monospace;
   color:#00ff88;
-  background:url("IMG_0081.jpeg") center/contain no-repeat;
-  background-color:#000;
+  background:#000;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Background overlay */
+#bgOverlay {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:url("IMG_0081.jpeg") center/cover no-repeat;
+  opacity:1; /* ярко на заставке */
+  transition:opacity 1s ease; /* плавное затемнение */
+  z-index:0;
 }
 
 /* Main app */
@@ -23,6 +36,8 @@ html, body {
   display:flex;
   flex-direction:column;
   opacity:0;
+  position:relative;
+  z-index:1;
   transition:opacity 1s ease;
 }
 
@@ -37,61 +52,68 @@ html, body {
   background-color:#000;
   display:flex;
   justify-content:center;
-  align-items:flex-end;
+  align-items:center;
   flex-direction:column;
-  opacity:0;
   z-index:9999;
-  animation: splashAnimation 3s forwards;
+  pointer-events:none;
 }
 
+/* Splash text */
 .splash-text {
-  margin-bottom:60px;
+  position:absolute;
+  left:50%;
+  bottom:15%;
+  transform:translateX(-50%);
   font-size:28px;
   font-weight:700;
   letter-spacing:2px;
-  color:#ffffff;
+  color:#00ff88;
   text-shadow:0 0 20px rgba(0,0,0,0.8);
-  opacity:0;
-  animation: textAnimation 3s forwards;
+  white-space:pre;
 }
 
-/* Keyframes */
-@keyframes splashAnimation {
+/* Smooth blinking cursor */
+.cursor {
+  display:inline-block;
+  width:2px;
+  height:1em;
+  background:#00ff88;
+  margin-left:2px;
+  vertical-align:bottom;
+  animation: blinkSmooth 1s infinite;
+}
+
+@keyframes blinkSmooth {
   0% {opacity:0;}
-  33% {opacity:1;}   /* fade in 1s */
-  66% {opacity:1;}   /* hold 1s */
-  100% {opacity:0;}  /* fade out 1s */
-}
-
-@keyframes textAnimation {
-  0% {opacity:0; transform:translateY(20px);}
-  33% {opacity:1; transform:translateY(0);}
-  66% {opacity:1; transform:translateY(0);}
-  100% {opacity:0; transform:translateY(-20px);}
+  50% {opacity:1;}
+  100% {opacity:0;}
 }
 
 /* Interface styles */
-.header {height:64px; display:flex; flex-direction:column; justify-content:center; padding:0 16px; background:#000; border-bottom:1px solid #00ff88;}
+.header {height:64px; display:flex; flex-direction:column; justify-content:center; padding:0 16px; background:rgba(0,0,0,0.8); border-bottom:1px solid #00ff88;}
 .header-title {font-weight:700; letter-spacing:1px;}
 .header-sub {font-size:12px; opacity:.7;}
 .center {flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px;}
-button {width:100%; max-width:320px; padding:14px; margin-top:14px; background:#000; color:#00ff88; border:2px solid #00ff88; border-radius:8px; font-size:16px; cursor:pointer;}
+button {width:100%; max-width:320px; padding:14px; margin-top:14px; background:rgba(0,0,0,0.8); color:#00ff88; border:2px solid #00ff88; border-radius:8px; font-size:16px; cursor:pointer;}
 button:disabled {opacity:.4;}
-.card {border:1px solid #00ff88; border-radius:8px; padding:14px; margin-top:16px; width:100%; max-width:380px; text-align:center;}
+.card {border:1px solid #00ff88; border-radius:8px; padding:14px; margin-top:16px; width:100%; max-width:380px; text-align:center; background:rgba(0,0,0,0.8);}
 .log {margin-top:18px; width:100%; max-width:380px; font-size:14px;}
 .progress {width:100%; max-width:320px; height:8px; border:1px solid #00ff88; border-radius:6px; margin-top:14px; overflow:hidden;}
 .bar {height:100%; width:0; background:#00ff88;}
 .small {font-size:12px; opacity:.7; margin-top:10px;}
 .warn {color:#ff5555; font-size:12px; margin-top:10px; font-weight:600;}
-.ticker {border-top:1px solid #00ff88; padding:10px; font-size:13px; background:#000;}
+.ticker {border-top:1px solid #00ff88; padding:10px; font-size:13px; background:rgba(0,0,0,0.8); position:relative; z-index:2;}
 .coin {display:flex; justify-content:space-between; padding:2px 0;}
 </style>
 </head>
 <body>
 
-<!-- Splash screen -->
+<!-- Background overlay -->
+<div id="bgOverlay"></div>
+
+<!-- Splash -->
 <div class="splash">
-  <div class="splash-text">Key Matrix Pro</div>
+  <div class="splash-text" id="splashText"></div>
 </div>
 
 <!-- Main App -->
@@ -104,7 +126,6 @@ button:disabled {opacity:.4;}
   <div class="center">
     <button id="scanBtn">SCAN FOR LOST WALLETS</button>
     <div class="log" id="log"></div>
-
     <div class="card" id="result" style="display:none;">
       <div id="balance"></div>
       <button id="seedBtn">REVEAL SEED PHRASE</button>
@@ -127,11 +148,33 @@ button:disabled {opacity:.4;}
 window.addEventListener("load", function() {
   const splash = document.querySelector(".splash");
   const app = document.querySelector(".app");
+  const splashText = document.getElementById("splashText");
+  const bgOverlay = document.getElementById("bgOverlay");
 
-  // Show app after splash animation ends (3s)
-  setTimeout(function(){
+  const fullText = "Key Matrix Pro";
+  let index = 0;
+
+  // Cursor element
+  const cursor = document.createElement("span");
+  cursor.classList.add("cursor");
+  splashText.appendChild(cursor);
+
+  // Typing effect
+  const typeTimer = setInterval(() => {
+    splashText.textContent = fullText.slice(0, index);
+    splashText.appendChild(cursor);
+    index++;
+    if(index > fullText.length) clearInterval(typeTimer);
+  }, 1000 / fullText.length); // ~1 sec
+
+  // Splash fade and background darkening
+  setTimeout(() => {
     app.style.opacity = "1";
     splash.remove();
+
+    // плавное затемнение фона
+    bgOverlay.style.transition = "opacity 1s ease";
+    bgOverlay.style.opacity = "0.35";
   }, 3000);
 });
 </script>
