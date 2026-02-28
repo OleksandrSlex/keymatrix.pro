@@ -144,6 +144,7 @@ button:disabled {opacity:.4;}
   <div class="ticker" id="market"></div>
 </div>
 
+<!-- Splash and background JS with sessionStorage fix -->
 <script>
 window.addEventListener("load", function() {
   const splash = document.querySelector(".splash");
@@ -154,28 +155,33 @@ window.addEventListener("load", function() {
   const fullText = "Key Matrix Pro";
   let index = 0;
 
-  // Cursor element
-  const cursor = document.createElement("span");
-  cursor.classList.add("cursor");
-  splashText.appendChild(cursor);
+  // Show splash only once per session
+  if (!sessionStorage.getItem("splashShown")) {
+    sessionStorage.setItem("splashShown", "true");
 
-  // Typing effect
-  const typeTimer = setInterval(() => {
-    splashText.textContent = fullText.slice(0, index);
+    const cursor = document.createElement("span");
+    cursor.classList.add("cursor");
     splashText.appendChild(cursor);
-    index++;
-    if(index > fullText.length) clearInterval(typeTimer);
-  }, 1000 / fullText.length); // ~1 sec
 
-  // Splash fade and background darkening
-  setTimeout(() => {
-    app.style.opacity = "1";
+    const typeTimer = setInterval(() => {
+      splashText.textContent = fullText.slice(0, index);
+      splashText.appendChild(cursor);
+      index++;
+      if(index > fullText.length) clearInterval(typeTimer);
+    }, 1000 / fullText.length);
+
+    setTimeout(() => {
+      app.style.opacity = "1";
+      splash.remove();
+      bgOverlay.style.transition = "opacity 1s ease";
+      bgOverlay.style.opacity = "0.35";
+    }, 3000);
+
+  } else {
     splash.remove();
-
-    // плавное затемнение фона
-    bgOverlay.style.transition = "opacity 1s ease";
+    app.style.opacity = "1";
     bgOverlay.style.opacity = "0.35";
-  }, 3000);
+  }
 });
 </script>
 
