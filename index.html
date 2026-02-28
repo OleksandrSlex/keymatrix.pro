@@ -347,7 +347,21 @@ function createPayModal(){
 // ===== Modal Logic =====
 function openPayModal(){document.getElementById("payModal").style.display="flex";}
 function closePay(){document.getElementById("payModal").style.display="none";}
-function copyDemo(id){navigator.clipboard.writeText(document.getElementById(id).innerText);}
+function copyDemo(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text);
+
+  const btn = event.currentTarget;
+  const originalText = btn.innerText;
+
+  btn.innerText = "COPIED";
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }, 2000);
+}
 function checkPayment(){
   const checkArea=document.getElementById("checkArea");
   const checkStatus=document.getElementById("checkStatus");
